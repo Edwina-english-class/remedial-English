@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>單字大冒險 🏆 七下英語單字遊戲</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF7EC;
+    --pink:#FF8FAB;
+    --pink-deep:#FF6B95;
+    --blue:#4D96FF;
+    --mint:#5FCBA0;
+    --yellow:#FFD166;
+    --plum:#4A3F55;
+    --plum-soft:#7A6E8C;
+    --white:#FFFFFF;
+    --radius-lg:28px;
+    --radius-md:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    font-family:'Nunito',sans-serif;
+    color:var(--plum);
+    background:
+      radial-gradient(circle at 12% 18%, rgba(255,209,102,0.35) 0, transparent 40%),
+      radial-gradient(circle at 88% 12%, rgba(77,150,255,0.25) 0, transparent 42%),
+      radial-gradient(circle at 85% 85%, rgba(255,143,171,0.3) 0, transparent 45%),
+      radial-gradient(circle at 10% 88%, rgba(95,203,160,0.3) 0, transparent 42%),
+      var(--cream);
+    overflow-x:hidden;
+    position:relative;
+  }
+  /* floating decorative shapes */
+  .floaty{
+    position:fixed;
+    pointer-events:none;
+    opacity:0.55;
+    filter:drop-shadow(0 6px 10px rgba(0,0,0,0.06));
+    animation:drift 9s ease-in-out infinite;
+    z-index:0;
+  }
+  @keyframes drift{
+    0%,100%{transform:translateY(0) rotate(0deg);}
+    50%{transform:translateY(-18px) rotate(8deg);}
+  }
+  .app{
+    position:relative;
+    z-index:1;
+    max-width:640px;
+    margin:0 auto;
+    padding:28px 18px 60px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .screen{display:none;width:100%;}
+  .screen.active{display:block;}
+
+  .brand{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .brand h1{
+    font-family:'Fredoka',sans-serif;
+    font-weight:700;
+    font-size:clamp(26px,6vw,34px);
+    color:var(--pink-deep);
+    text-shadow:2px 2px 0 rgba(255,255,255,0.7);
+    margin:0;
+    letter-spacing:0.5px;
+  }
+
+  .card{
+    background:var(--white);
+    border-radius:var(--radius-lg);
+    padding:30px 26px;
+    box-shadow:0 14px 0 rgba(255,143,171,0.18), 0 18px 40px rgba(74,63,85,0.10);
+    border:3px solid #FFE3EC;
+    width:100%;
+  }
+
+  /* MASCOT */
+  .mascot-wrap{display:flex;justify-content:center;margin-bottom:8px;}
+  .mascot{width:118px;height:118px;transition:transform .25s ease;}
+  .mascot.idle{animation:bob 2.6s ease-in-out infinite;}
+  .mascot.happy{animation:hop .5s ease 2;}
+  .mascot.sad{animation:wobble .5s ease;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-10px) rotate(2deg);}}
+  @keyframes hop{0%{transform:translateY(0) scale(1);}30%{transform:translateY(-22px) scale(1.06);}60%{transform:translateY(0) scale(1);}100%{transform:translateY(-6px) scale(1.02);}}
+  @keyframes wobble{0%,100%{transform:rotate(0);}25%{transform:rotate(-10deg);}75%{transform:rotate(10deg);}}
+
+  /* START SCREEN */
+  .subtitle{
+    text-align:center;
+    color:var(--plum-soft);
+    font-weight:700;
+    margin:0 0 22px;
+    font-size:15px;
+  }
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;
+    font-weight:800;
+    font-size:14px;
+    color:var(--pink-deep);
+    margin-bottom:6px;
+  }
+  .field input{
+    width:100%;
+    padding:13px 16px;
+    border-radius:var(--radius-md);
+    border:2.5px solid #FFD6E4;
+    font-family:'Nunito',sans-serif;
+    font-size:16px;
+    font-weight:700;
+    color:var(--plum);
+    background:#FFFBF6;
+    outline:none;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .field input:focus{
+    border-color:var(--pink);
+    box-shadow:0 0 0 4px rgba(255,143,171,0.18);
+  }
+  .row2{display:flex;gap:12px;}
+  .row2 .field{flex:1;}
+
+  .btn{
+    font-family:'Fredoka',sans-serif;
+    font-weight:600;
+    font-size:18px;
+    border:none;
+    border-radius:999px;
+    padding:15px 20px;
+    cursor:pointer;
+    color:var(--white);
+    background:linear-gradient(180deg, var(--pink) 0%, var(--pink-deep) 100%);
+    box-shadow:0 6px 0 #E85285;
+    width:100%;
+    transition:transform .08s ease, box-shadow .08s ease;
+    letter-spacing:0.5px;
+  }
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 #E85285;}
+  .btn:disabled{opacity:0.45;cursor:not-allowed;}
+  .btn-secondary{
+    background:linear-gradient(180deg, var(--blue) 0%, #2F79E8 100%);
+    box-shadow:0 6px 0 #2560B8;
+  }
+  .btn-secondary:active{box-shadow:0 2px 0 #2560B8;}
+
+  .hint-error{
+    color:#E8527C;
+    font-weight:800;
+    font-size:13px;
+    text-align:center;
+    margin:-6px 0 14px;
+    min-height:16px;
+  }
+
+  /* QUIZ SCREEN */
+  .quiz-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+    font-family:'Fredoka',sans-serif;
+    font-weight:600;
+    color:var(--plum-soft);
+    font-size:14px;
+  }
+  .pill{
+    background:#FFF1F5;
+    border:2px solid #FFD6E4;
+    border-radius:999px;
+    padding:5px 14px;
+    color:var(--pink-deep);
+  }
+  .pill.timer{background:#EAF3FF;border-color:#CFE2FF;color:var(--blue);}
+
+  .progress-track{
+    width:100%;
+    height:14px;
+    background:#FFEEF3;
+    border-radius:999px;
+    overflow:hidden;
+    margin-bottom:22px;
+    border:2px solid #FFD6E4;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--yellow), var(--pink));
+    border-radius:999px;
+    transition:width .35s ease;
+  }
+
+  .word-card{
+    text-align:center;
+    background:linear-gradient(180deg,#FFFDF9,#FFF7EC);
+    border:2.5px dashed #FFD166;
+    border-radius:var(--radius-md);
+    padding:26px 16px;
+    margin-bottom:22px;
+  }
+  .word-eyebrow{
+    font-weight:800;
+    font-size:12px;
+    letter-spacing:2px;
+    color:var(--mint);
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .word-en{
+    font-family:'Fredoka',sans-serif;
+    font-weight:700;
+    font-size:clamp(28px,7vw,38px);
+    color:var(--plum);
+    word-break:break-word;
+  }
+
+  .options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:8px;
+  }
+  .opt{
+    font-family:'Nunito',sans-serif;
+    font-weight:800;
+    font-size:16px;
+    background:var(--white);
+    border:2.5px solid #EFE6F5;
+    border-radius:var(--radius-md);
+    padding:16px 10px;
+    cursor:pointer;
+    color:var(--plum);
+    box-shadow:0 4px 0 #EFE0EA;
+    transition:transform .08s ease, box-shadow .08s ease, background .15s, border-color .15s;
+    min-height:64px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    line-height:1.3;
+  }
+  .opt:hover:not(:disabled){border-color:var(--pink);transform:translateY(-2px);}
+  .opt:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #EFE0EA;}
+  .opt:disabled{cursor:default;}
+  .opt.correct{background:#E6F8EF;border-color:var(--mint);color:#1E8A5F;box-shadow:0 4px 0 #B9E9D2;}
+  .opt.wrong{background:#FFECEF;border-color:#FF8FA0;color:#D6395A;box-shadow:0 4px 0 #FFC9D3;}
+
+  .feedback{
+    min-height:34px;
+    text-align:center;
+    font-family:'Fredoka',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    margin-top:4px;
+  }
+  .feedback.good{color:#1E8A5F;}
+  .feedback.bad{color:#D6395A;}
+
+  /* RESULT SCREEN */
+  .result-hero{
+    text-align:center;
+    margin-bottom:18px;
+  }
+  .result-hero h2{
+    font-family:'Fredoka',sans-serif;
+    font-size:26px;
+    color:var(--pink-deep);
+    margin:6px 0 2px;
+  }
+  .stats{
+    display:flex;
+    gap:12px;
+    margin:18px 0 20px;
+  }
+  .stat{
+    flex:1;
+    background:#FFF7EC;
+    border:2.5px solid #FFE3B8;
+    border-radius:var(--radius-md);
+    padding:16px 10px;
+    text-align:center;
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;
+    font-weight:700;
+    font-size:26px;
+    color:var(--pink-deep);
+  }
+  .stat .lbl{
+    font-size:12px;
+    font-weight:800;
+    color:var(--plum-soft);
+    margin-top:2px;
+  }
+
+  .review-title{
+    font-family:'Fredoka',sans-serif;
+    font-weight:600;
+    font-size:16px;
+    color:var(--plum);
+    margin:6px 0 10px;
+  }
+  .review-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0 8px;
+    font-size:13.5px;
+  }
+  .review-table th{
+    text-align:left;
+    font-weight:800;
+    color:var(--plum-soft);
+    padding:0 8px;
+    font-size:12px;
+  }
+  .review-table td{
+    background:#FFFBF6;
+    padding:10px 8px;
+    font-weight:700;
+  }
+  .review-table tr td:first-child{border-radius:12px 0 0 12px;}
+  .review-table tr td:last-child{border-radius:0 12px 12px 0;}
+  .review-table tr.miss td{background:#FFF1F0;}
+  .badge-ok{color:#1E8A5F;}
+  .badge-miss{color:#D6395A;}
+
+  .footer-btn{margin-top:22px;}
+
+  @media (max-width:420px){
+    .options{grid-template-columns:1fr;}
+    .card{padding:22px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<svg class="floaty" style="top:8%;left:6%;width:34px;" viewBox="0 0 24 24" fill="#FFD166"><path d="M12 2l2.9 6.6L22 9.6l-5 4.7L18.4 22 12 18.3 5.6 22 7 14.3 2 9.6l7.1-1z"/></svg>
+<svg class="floaty" style="top:70%;right:8%;width:28px;animation-delay:1.5s;" viewBox="0 0 24 24" fill="#4D96FF"><path d="M12 2l2.9 6.6L22 9.6l-5 4.7L18.4 22 12 18.3 5.6 22 7 14.3 2 9.6l7.1-1z"/></svg>
+<svg class="floaty" style="top:35%;right:4%;width:26px;animation-delay:3s;" viewBox="0 0 24 24" fill="#5FCBA0"><circle cx="12" cy="12" r="10"/></svg>
+<svg class="floaty" style="top:85%;left:12%;width:22px;animation-delay:2s;" viewBox="0 0 24 24" fill="#FF8FAB"><circle cx="12" cy="12" r="10"/></svg>
+
+<div class="app">
+  <div class="brand">
+    <h1>單字大冒險</h1>
+  </div>
+
+  <!-- START SCREEN -->
+  <section class="screen active" id="screen-start">
+    <div class="card">
+      <div class="mascot-wrap">
+        <svg class="mascot idle" id="mascot-start" viewBox="0 0 200 200">
+          <ellipse cx="100" cy="172" rx="50" ry="9" fill="#FFE3B8"/>
+          <rect x="65" y="158" width="70" height="14" rx="5" fill="#F5A623"/>
+          <rect x="78" y="146" width="44" height="14" rx="4" fill="#FFC94D"/>
+          <rect x="92" y="120" width="16" height="28" rx="4" fill="#FFC94D"/>
+          <path d="M55 70 C25 70 25 112 58 112" stroke="#FFC94D" stroke-width="10" fill="none" stroke-linecap="round"/>
+          <path d="M145 70 C175 70 175 112 142 112" stroke="#FFC94D" stroke-width="10" fill="none" stroke-linecap="round"/>
+          <path d="M52 62 C52 108 74 128 100 128 C126 128 148 108 148 62 C148 55 145 52 138 52 L62 52 C55 52 52 55 52 62 Z" fill="#FFD166"/>
+          <ellipse cx="100" cy="55" rx="46" ry="9" fill="#FFE7A8"/>
+          <path d="M100 38 L104.5 47 L114 48.3 L107 55 L108.8 64.4 L100 59.8 L91.2 64.4 L93 55 L86 48.3 L95.5 47 Z" fill="#FFF3D6"/>
+          <circle cx="85" cy="90" r="6" fill="#8A5A00"/>
+          <circle cx="115" cy="90" r="6" fill="#8A5A00"/>
+          <circle cx="87" cy="87.5" r="1.7" fill="#fff"/>
+          <circle cx="117" cy="87.5" r="1.7" fill="#fff"/>
+          <path d="M92 104 Q100 110 108 104" stroke="#8A5A00" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <circle cx="70" cy="100" r="6" fill="#FF9EAE" opacity="0.6"/>
+          <circle cx="130" cy="100" r="6" fill="#FF9EAE" opacity="0.6"/>
+        </svg>
+      </div>
+      <p class="subtitle">七下 Unit 1–6 · 中英配對 🍬</p>
+
+      <div class="row2">
+        <div class="field">
+          <label for="in-class">班級</label>
+          <input id="in-class" type="text" inputmode="numeric" placeholder="例如：701">
+        </div>
+        <div class="field">
+          <label for="in-seat">座號</label>
+          <input id="in-seat" type="text" inputmode="numeric" placeholder="例如：12">
+        </div>
+      </div>
+      <div class="field">
+        <label for="in-name">姓名</label>
+        <input id="in-name" type="text" placeholder="請輸入你的姓名">
+      </div>
+      <div class="hint-error" id="start-error"></div>
+      <button class="btn" id="btn-start">開始遊戲 🚀</button>
+    </div>
+  </section>
+
+  <!-- QUIZ SCREEN -->
+  <section class="screen" id="screen-quiz">
+    <div class="card">
+      <div class="quiz-top">
+        <span class="pill" id="q-progress">第 1 / 20 題</span>
+        <span class="pill timer" id="q-timer">⏱ 00:00</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:5%"></div></div>
+
+      <div class="mascot-wrap">
+        <svg class="mascot idle" id="mascot-quiz" viewBox="0 0 200 200">
+          <ellipse cx="100" cy="172" rx="46" ry="8" fill="#FFE3B8"/>
+          <rect x="68" y="159" width="64" height="13" rx="5" fill="#F5A623"/>
+          <rect x="80" y="148" width="40" height="13" rx="4" fill="#FFC94D"/>
+          <rect x="93" y="123" width="14" height="26" rx="4" fill="#FFC94D"/>
+          <path d="M57 72 C29 72 29 111 60 111" stroke="#FFC94D" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M143 72 C171 72 171 111 140 111" stroke="#FFC94D" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M55 64 C55 106 76 125 100 125 C124 125 145 106 145 64 C145 58 142 55 136 55 L64 55 C58 55 55 58 55 64 Z" fill="#FFD166"/>
+          <ellipse cx="100" cy="57" rx="43" ry="8" fill="#FFE7A8"/>
+          <path d="M100 41 L104.2 49.5 L113.2 50.7 L106.6 57 L108.3 65.9 L100 61.5 L91.7 65.9 L93.4 57 L86.8 50.7 L95.8 49.5 Z" fill="#FFF3D6"/>
+          <circle cx="86" cy="91" r="5.6" fill="#8A5A00"/>
+          <circle cx="114" cy="91" r="5.6" fill="#8A5A00"/>
+          <circle cx="88" cy="88.7" r="1.6" fill="#fff"/>
+          <circle cx="116" cy="88.7" r="1.6" fill="#fff"/>
+          <path d="M92 103 Q100 108.5 108 103" stroke="#8A5A00" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+          <circle cx="72" cy="99" r="5.5" fill="#FF9EAE" opacity="0.6"/>
+          <circle cx="128" cy="99" r="5.5" fill="#FF9EAE" opacity="0.6"/>
+        </svg>
+      </div>
+
+      <div class="word-card">
+        <div class="word-eyebrow">這個英文單字是⋯</div>
+        <div class="word-en" id="word-en">apple</div>
+      </div>
+
+      <div class="options" id="options-wrap"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  </section>
+
+  <!-- RESULT SCREEN -->
+  <section class="screen" id="screen-result">
+    <div class="card">
+      <div class="result-hero">
+        <div class="mascot-wrap">
+          <svg class="mascot" viewBox="0 0 200 200">
+            <path d="M28 44 L32 54 L42 56 L34 63 L36 74 L28 68 L20 74 L22 63 L14 56 L24 54 Z" fill="#FFD166"/>
+            <path d="M172 44 L176 54 L186 56 L178 63 L180 74 L172 68 L164 74 L166 63 L158 56 L168 54 Z" fill="#FF8FAB"/>
+            <ellipse cx="100" cy="172" rx="50" ry="9" fill="#FFE3B8"/>
+            <rect x="65" y="158" width="70" height="14" rx="5" fill="#F5A623"/>
+            <rect x="78" y="146" width="44" height="14" rx="4" fill="#FFC94D"/>
+            <rect x="92" y="120" width="16" height="28" rx="4" fill="#FFC94D"/>
+            <path d="M55 70 C25 70 25 112 58 112" stroke="#FFC94D" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <path d="M145 70 C175 70 175 112 142 112" stroke="#FFC94D" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <path d="M52 62 C52 108 74 128 100 128 C126 128 148 108 148 62 C148 55 145 52 138 52 L62 52 C55 52 52 55 52 62 Z" fill="#FFD166"/>
+            <ellipse cx="100" cy="55" rx="46" ry="9" fill="#FFE7A8"/>
+            <path d="M100 38 L104.5 47 L114 48.3 L107 55 L108.8 64.4 L100 59.8 L91.2 64.4 L93 55 L86 48.3 L95.5 47 Z" fill="#FFF3D6"/>
+            <path d="M79 89 Q85 82 91 89" stroke="#8A5A00" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+            <path d="M109 89 Q115 82 121 89" stroke="#8A5A00" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+            <path d="M86 101 Q100 115 114 101" stroke="#8A5A00" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+            <circle cx="70" cy="100" r="7" fill="#FF9EAE" opacity="0.65"/>
+            <circle cx="130" cy="100" r="7" fill="#FF9EAE" opacity="0.65"/>
+          </svg>
+        </div>
+        <h2 id="result-title">太棒了！</h2>
+        <div id="result-name" style="font-weight:800;color:var(--plum-soft);"></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="num" id="stat-accuracy">0%</div>
+          <div class="lbl">答對率</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="stat-time">00:00</div>
+          <div class="lbl">花費時間</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="stat-correct">0/20</div>
+          <div class="lbl">首次答對</div>
+        </div>
+      </div>
+
+      <div class="review-title">📋 答題一覽表</div>
+      <table class="review-table" id="review-body"></table>
+
+      <div class="footer-btn">
+        <button class="btn btn-secondary" id="btn-replay">🔁 再玩一次</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ================= VOCAB DATA (七下 Unit 1-6) ================= */
+const VOCAB_RAW = {
+  U1:[
+    ["like","喜歡；像"],["sport","運動"],["much","多（的）"],["team","隊；組"],
+    ["practice","練習"],["every","每一"],["then","那麼"],["swim","游泳"],["join","參加"],
+    ["eye","眼睛"],["hair","頭髮"],["know","知道；認識"],["hundred","百"],
+    ["centimeter","公分"],["You can say that again!","一點也沒錯！"],["guitar","吉他"],
+    ["piano","鋼琴"],["fly a kite","放風箏"],["paint","畫圖；油漆"],["make a cake","做蛋糕"],
+    ["nose","鼻子"],["leg","腿"],["large","大的"],["ear","耳朵"],["mouth","嘴巴"],
+    ["thick","厚的"],["lip","嘴唇"],["strong","強壯的"],["arm","手臂"],["height","身高；高度"],
+    ["player","選手；球員"],["the USA","美國"],["body","身體"],["put one's all","盡全力"],
+    ["into","到…裡面"],["a lot of","很多的"],["stand out","突出"],["different","不同的"],
+    ["top","頂尖的"],["on the other hand","另一方面"],["make up for…","彌補…"]
+  ],
+  U2:[
+    ["early","早的"],["work","工作"],["often","經常"],["get up","起床"],["usually","通常"],
+    ["seldom","很少"],["sometimes","有時候"],["even","甚至"],["late","晚的"],
+    ["do one's homework","做功課"],["hour","小時"],["always","總是"],["tired","疲累的"],
+    ["shower","淋浴"],["never","從未"],["by the way","順帶一提"],["library","圖書館"],
+    ["check out","借（書）"],["once","一次"],["twice","兩次"],["walk","溜（寵物）"],
+    ["I can't help it.","我沒辦法。/我控制不了。"],["too","太…"],["How often…?","多常…？"],
+    ["about","大約"],["brush one's teeth","刷牙"],["face","臉"],["breakfast","早餐"],
+    ["lunch","午餐"],["exercise","運動"],["computer","電腦"],["minute","分鐘"],
+    ["answer","回答；答案"],["question","問題"],["trouble","困難；麻煩"],["life","生命；生活"],
+    ["love","愛"],["real","真實的"]
+  ],
+  U3:[
+    ["painting","畫作"],["flower","花"],["which","哪一個"],["thirsty","口渴的"],
+    ["coffee","咖啡"],["shop","商店"],["later","稍後；晚點"],["Of course.","當然。"],
+    ["clerk","店員"],["may","可以；可能"],["juice","果汁"],["want","想要"],
+    ["anything","任何事物"],["else","其他"],["treat","請客；款待"],["sweet","甜美的；甜的"],
+    ["hot","熱的"],["chocolate","巧克力"],["dollar","元"],["for here","內用"],
+    ["to go","外帶"],["Here you are.","給你。"],["bright","鮮豔的；明亮的"],["dark","黑的；暗的"],
+    ["art","美術；藝術"],["milk","牛奶"],["hamburger","漢堡"],["chicken rice","雞肉飯"],
+    ["tea","茶"],["ice cream","冰淇淋"],["soup","湯"],["sandwich","三明治"],
+    ["show","表現；秀出"],["part","部分"],["sky","天空"],["street","街道"],["by","被；由"]
+  ],
+  U4:[
+    ["why","為什麼"],["wear","戴；穿"],["mask","口罩；面具"],["because","因為"],
+    ["sick","生病的"],["water","水"],["glass","玻璃杯；玻璃"],["flour","麵粉"],
+    ["need","需要；需求"],["pie","派"],["still","仍然"],["thing","東西；事情"],
+    ["a little","一點點"],["salt","鹽"],["something","某物；某事"],["sugar","糖"],
+    ["get","取得"],["all right","好吧；好的"],["so","所以"],["back off","退後；走開"],
+    ["meal","餐"],["bottle","瓶子"],["candy","糖果"],["popcorn","爆米花"],["cup","杯"],
+    ["bowl","碗"],["fruit salad","水果沙拉"],["pizza","披薩"],["milk shake","奶昔"],
+    ["can","罐子"],["toast","烤土司；烘烤"],["bread","麵包"],["yummy","好吃的"],
+    ["easy","容易的"],["snack","點心"],["kid","小孩"],["cheese","起司"],["plate","盤子"],
+    ["last","最後（的）"],["enjoy","享受；喜愛"],["turn into","(使) 變成"],["each","每一個 (的)"]
+  ],
+  U5:[
+    ["yesterday","昨天"],["beach","海灘"],["trash","垃圾"],["ago","前；以前"],
+    ["visit","拜訪"],["island","島嶼"],["a few","幾個；一些"],["sea","海"],["stop","停止"],
+    ["happen","發生"],["dead","死亡的"],["warm","溫暖的"],["rainforest","雨林"],
+    ["die","死亡"],["by","在…旁邊"],["How come?","怎麼會? / 為什麼?"],["then","那時候"],
+    ["busy","忙碌的"],["river","河流"],["lake","湖泊"],["hill","山丘"],["mountain","山"],
+    ["camp","露營；紮營"],["climb","爬（山）"],["row a boat","划船"],["plant","種植；植物"],
+    ["hike","健行"],["picnic","野餐"],["last","上一個的"],["live","居住"],
+    ["playground","遊樂場；操場"],["everything","每樣事物"],["change","改變"],["burn","燃燒"],
+    ["oil","油"],["sell","賣"],["make money","賺錢"],["miss","想念"],["little","小的"],
+    ["little by little","一點一點地；逐漸地"],["way","方式"]
+  ],
+  U6:[
+    ["airport","機場"],["travel","旅行；行進"],["rest","休息"],["hotel","飯店"],
+    ["plane","飛機"],["the sights","風景；名勝"],["bookstore","書店"],["buy","購買"],
+    ["just","就；只"],["learn","學習"],["story","故事"],["cool","酷的"],["train","火車"],
+    ["cold","冷的"],["try","嘗試"],["way","距離；路線"],["take","帶；拿；取"],
+    ["the other day","前幾天"],["station","車站；局"],["department store","百貨公司"],
+    ["restaurant","餐廳"],["theater","電影院"],["market","市場"],["temple","寺廟"],
+    ["famous","有名的"],["during","在…期間"],["besides","除…之外"],["fall in love","墜入情網"],
+    ["age","年紀"],["lose","失去"],["cry","哭泣"],["hide","躲藏"],["build","建造"],
+    ["trip","旅行；行程"],["sadly","令人傷心地"],["last","持續"]
+  ]
+};
+
+// Flatten + dedupe by English word (keep first occurrence) so quiz prompts stay unambiguous
+const seen = new Set();
+const ALL_WORDS = [];
+Object.keys(VOCAB_RAW).forEach(unit=>{
+  VOCAB_RAW[unit].forEach(([en,zh])=>{
+    if(!seen.has(en)){
+      seen.add(en);
+      ALL_WORDS.push({en,zh,unit});
+    }
+  });
+});
+
+/* ================= STATE ================= */
+const QUESTION_COUNT = 20;
+let state = {
+  student:{cls:"",seat:"",name:""},
+  questions:[],
+  currentIndex:0,
+  records:[],      // {en, zh, attempts, gotFirstTry}
+  startTime:0,
+  timerHandle:null,
+  currentAttempts:0,
+  locked:false
+};
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function buildQuestions(){
+  const pool = shuffle(ALL_WORDS).slice(0,QUESTION_COUNT);
+  return pool.map(word=>{
+    const distractorsPool = ALL_WORDS.filter(w=>w.en!==word.en);
+    const distractors = shuffle(distractorsPool).slice(0,3).map(w=>w.zh);
+    const options = shuffle([word.zh,...distractors]);
+    return {en:word.en, zh:word.zh, options};
+  });
+}
+
+/* ================= SCREEN SWITCH ================= */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ================= START SCREEN ================= */
+document.getElementById('btn-start').addEventListener('click', ()=>{
+  const cls = document.getElementById('in-class').value.trim();
+  const seat = document.getElementById('in-seat').value.trim();
+  const name = document.getElementById('in-name').value.trim();
+  const errEl = document.getElementById('start-error');
+  if(!cls || !seat || !name){
+    errEl.textContent = '請填寫班級、座號與姓名唷 🐾';
+    return;
+  }
+  errEl.textContent = '';
+  state.student = {cls,seat,name};
+  startQuiz();
+});
+
+/* ================= QUIZ FLOW ================= */
+function startQuiz(){
+  state.questions = buildQuestions();
+  state.currentIndex = 0;
+  state.records = [];
+  state.startTime = Date.now();
+  showScreen('screen-quiz');
+  startTimer();
+  renderQuestion();
+}
+
+function startTimer(){
+  clearInterval(state.timerHandle);
+  updateTimerDisplay();
+  state.timerHandle = setInterval(updateTimerDisplay, 500);
+}
+function updateTimerDisplay(){
+  const secs = Math.floor((Date.now()-state.startTime)/1000);
+  document.getElementById('q-timer').textContent = '⏱ ' + formatTime(secs);
+}
+function formatTime(totalSecs){
+  const m = Math.floor(totalSecs/60).toString().padStart(2,'0');
+  const s = (totalSecs%60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+function renderQuestion(){
+  state.currentAttempts = 0;
+  state.locked = false;
+  const q = state.questions[state.currentIndex];
+  document.getElementById('q-progress').textContent = `第 ${state.currentIndex+1} / ${QUESTION_COUNT} 題`;
+  document.getElementById('progress-fill').style.width = `${((state.currentIndex)/QUESTION_COUNT)*100}%`;
+  document.getElementById('word-en').textContent = q.en;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+
+  const wrap = document.getElementById('options-wrap');
+  wrap.innerHTML = '';
+  q.options.forEach(optZh=>{
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = optZh;
+    btn.addEventListener('click', ()=>handleAnswer(optZh, btn));
+    wrap.appendChild(btn);
+  });
+
+  const mascot = document.getElementById('mascot-quiz');
+  mascot.className = 'mascot idle';
+}
+
+function handleAnswer(selectedZh, btnEl){
+  if(state.locked) return;
+  const q = state.questions[state.currentIndex];
+  const isCorrect = selectedZh === q.zh;
+  state.currentAttempts++;
+
+  const feedback = document.getElementById('feedback');
+  const mascot = document.getElementById('mascot-quiz');
+  const allOpts = document.querySelectorAll('#options-wrap .opt');
+
+  if(isCorrect){
+    state.locked = true;
+    allOpts.forEach(o=>o.disabled = true);
+    btnEl.classList.add('correct');
+    feedback.textContent = 'Good job! 🎉';
+    feedback.className = 'feedback good';
+    mascot.className = 'mascot happy';
+
+    state.records.push({
+      en: q.en,
+      zh: q.zh,
+      attempts: state.currentAttempts,
+      gotFirstTry: state.currentAttempts === 1
+    });
+
+    setTimeout(()=>{
+      state.currentIndex++;
+      if(state.currentIndex >= QUESTION_COUNT){
+        finishQuiz();
+      } else {
+        renderQuestion();
+      }
+    }, 700);
+  } else {
+    btnEl.classList.add('wrong');
+    btnEl.disabled = true;
+    feedback.textContent = 'Try again! 💪';
+    feedback.className = 'feedback bad';
+    mascot.className = 'mascot sad';
+    setTimeout(()=>{ mascot.className = 'mascot idle'; }, 500);
+  }
+}
+
+/* ================= RESULT SCREEN ================= */
+function finishQuiz(){
+  clearInterval(state.timerHandle);
+  const totalSecs = Math.floor((Date.now()-state.startTime)/1000);
+  const firstTryCount = state.records.filter(r=>r.gotFirstTry).length;
+  const accuracy = Math.round((firstTryCount/QUESTION_COUNT)*100);
+
+  document.getElementById('result-name').textContent =
+    `${state.student.cls} 班 ${state.student.seat} 號 ${state.student.name}`;
+  document.getElementById('result-title').textContent =
+    accuracy >= 80 ? '太棒了！你是單字小達人！' :
+    accuracy >= 50 ? '做得不錯，繼續加油！' : '再接再厲，你可以更棒！';
+
+  document.getElementById('stat-accuracy').textContent = accuracy + '%';
+  document.getElementById('stat-time').textContent = formatTime(totalSecs);
+  document.getElementById('stat-correct').textContent = `${firstTryCount}/${QUESTION_COUNT}`;
+
+  const tbl = document.getElementById('review-body');
+  let rows = `<tr><th>#</th><th>英文單字</th><th>正確意思</th><th>結果</th><th>嘗試次數</th></tr>`;
+  state.records.forEach((r,i)=>{
+    rows += `<tr class="${r.gotFirstTry?'':'miss'}">
+      <td>${i+1}</td>
+      <td>${escapeHtml(r.en)}</td>
+      <td>${escapeHtml(r.zh)}</td>
+      <td class="${r.gotFirstTry?'badge-ok':'badge-miss'}">${r.gotFirstTry?'✅ 首答對':'🔁 重試後對'}</td>
+      <td>${r.attempts}</td>
+    </tr>`;
+  });
+  tbl.innerHTML = rows;
+
+  showScreen('screen-result');
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+/* ================= REPLAY ================= */
+document.getElementById('btn-replay').addEventListener('click', ()=>{
+  startQuiz();
+});
+</script>
+</body>
+</html>
