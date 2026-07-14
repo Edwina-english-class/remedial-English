@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>不規則動詞過去式大挑戰</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Baloo+2:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FFF6E9;
+    --bg-2: #FFE9D6;
+    --card: #FFFFFF;
+    --pink: #FF8FA8;
+    --pink-dark: #F26C8D;
+    --blue: #7BC8F6;
+    --blue-dark: #4FA9E0;
+    --mint: #7FDCB5;
+    --mint-dark: #4FC095;
+    --yellow: #FFD873;
+    --yellow-dark: #F5B942;
+    --text: #4A4560;
+    --text-light: #8A84A0;
+    --shadow: rgba(74,69,96,0.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 15%, var(--bg-2) 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, #FFE0EC 0%, transparent 45%),
+      var(--bg);
+    font-family:'Noto Sans TC', sans-serif;
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .stage{
+    width:100%;
+    max-width:640px;
+  }
+  .cloud{
+    position:fixed;
+    border-radius:50%;
+    background:#FFFFFF;
+    opacity:0.6;
+    filter:blur(1px);
+    z-index:0;
+  }
+  .card{
+    position:relative;
+    background:var(--card);
+    border-radius:32px;
+    padding:36px 32px;
+    box-shadow: 0 20px 40px var(--shadow), 0 2px 0 rgba(255,255,255,0.8) inset;
+    border:3px solid #FFFFFF;
+    z-index:1;
+  }
+  .title-font{ font-family:'ZCOOL KuaiLe', sans-serif; }
+  .eng-font{ font-family:'Baloo 2', sans-serif; }
+
+  /* ---------- Entry Screen ---------- */
+  h1.game-title{
+    text-align:center;
+    font-size:30px;
+    color:var(--pink-dark);
+    margin:0 0 6px;
+    line-height:1.4;
+  }
+  p.game-sub{
+    text-align:center;
+    color:var(--text-light);
+    font-size:14px;
+    margin:0 0 26px;
+  }
+  .field{
+    margin-bottom:16px;
+  }
+  .field label{
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:6px;
+    padding-left:4px;
+  }
+  .field input{
+    width:100%;
+    padding:14px 16px;
+    border-radius:16px;
+    border:2.5px solid #F1E4D2;
+    background:#FFFCF7;
+    font-size:16px;
+    font-family:'Noto Sans TC', sans-serif;
+    color:var(--text);
+    outline:none;
+    transition:.15s;
+  }
+  .field input:focus{
+    border-color:var(--blue);
+    background:#fff;
+    box-shadow:0 0 0 4px rgba(123,200,246,0.25);
+  }
+  .btn{
+    display:block;
+    width:100%;
+    border:none;
+    border-radius:18px;
+    padding:16px;
+    font-size:18px;
+    font-weight:700;
+    font-family:'Noto Sans TC', sans-serif;
+    cursor:pointer;
+    color:#fff;
+    background:linear-gradient(180deg, var(--pink) 0%, var(--pink-dark) 100%);
+    box-shadow: 0 6px 0 #D95A79, 0 10px 18px rgba(242,108,141,0.35);
+    transition: transform .08s ease;
+    margin-top:10px;
+  }
+  .btn:active{
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #D95A79, 0 4px 10px rgba(242,108,141,0.35);
+  }
+  .btn.secondary{
+    background:linear-gradient(180deg, var(--blue) 0%, var(--blue-dark) 100%);
+    box-shadow: 0 6px 0 #3F8FC2, 0 10px 18px rgba(79,169,224,0.35);
+  }
+  .btn.secondary:active{
+    box-shadow: 0 2px 0 #3F8FC2, 0 4px 10px rgba(79,169,224,0.35);
+  }
+  .hint{
+    text-align:center;
+    font-size:12px;
+    color:var(--text-light);
+    margin-top:14px;
+  }
+  .err{
+    color:var(--pink-dark);
+    font-size:12.5px;
+    text-align:center;
+    min-height:18px;
+    margin-top:8px;
+    font-weight:700;
+  }
+
+  /* ---------- Game Screen ---------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+    font-family:'Baloo 2', sans-serif;
+  }
+  .pill{
+    background:#FFF1DE;
+    border-radius:999px;
+    padding:8px 16px;
+    font-size:13px;
+    font-weight:700;
+    color:var(--yellow-dark);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .progress-track{
+    height:12px;
+    border-radius:999px;
+    background:#F1E4D2;
+    overflow:hidden;
+    margin-bottom:26px;
+  }
+  .progress-fill{
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg, var(--mint), var(--mint-dark));
+    transition:width .35s linear, background .3s ease;
+  }
+  .progress-fill.low{
+    background:linear-gradient(90deg, var(--pink), var(--pink-dark));
+  }
+  .cn-word.happy{ animation: pop 0.5s ease; }
+  .cn-word.sad{ animation: shake 0.45s ease; }
+  @keyframes pop{
+    0%{ transform:scale(1); }
+    40%{ transform:scale(1.35) rotate(-8deg); }
+    70%{ transform:scale(0.95) rotate(4deg); }
+    100%{ transform:scale(1); }
+  }
+  @keyframes shake{
+    0%,100%{ transform: translateX(0); }
+    25%{ transform: translateX(-8px); }
+    75%{ transform: translateX(8px); }
+  }
+  .cn-word{
+    text-align:center;
+    font-size:26px;
+    font-weight:900;
+    color:var(--text);
+    margin-bottom:14px;
+  }
+  .base-box{
+    text-align:center;
+    margin-bottom:22px;
+  }
+  .base-box .label{
+    display:inline-block;
+    font-size:12px;
+    color:var(--text-light);
+    background:#F4EEFB;
+    border-radius:999px;
+    padding:3px 12px;
+    margin-bottom:8px;
+  }
+  .base-box .word{
+    font-family:'Baloo 2', sans-serif;
+    font-size:40px;
+    font-weight:800;
+    color:var(--blue-dark);
+    letter-spacing:1px;
+  }
+  .arrow{
+    text-align:center;
+    font-size:22px;
+    color:var(--text-light);
+    margin-bottom:10px;
+  }
+  .answer-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .answer-row input{
+    flex:1;
+    padding:14px 16px;
+    border-radius:16px;
+    border:2.5px solid #F1E4D2;
+    background:#FFFCF7;
+    font-family:'Baloo 2', sans-serif;
+    font-size:20px;
+    text-align:center;
+    color:var(--text);
+    outline:none;
+    transition:.15s;
+  }
+  .answer-row input:focus{
+    border-color:var(--pink);
+    box-shadow:0 0 0 4px rgba(255,143,168,0.22);
+  }
+  .answer-row button{
+    border:none;
+    border-radius:16px;
+    padding:0 24px;
+    font-size:16px;
+    font-weight:700;
+    color:#fff;
+    background:linear-gradient(180deg, var(--mint) 0%, var(--mint-dark) 100%);
+    box-shadow:0 5px 0 #3EA07E;
+    cursor:pointer;
+  }
+  .answer-row button:active{
+    transform:translateY(3px);
+    box-shadow:0 2px 0 #3EA07E;
+  }
+  .feedback{
+    text-align:center;
+    min-height:34px;
+    font-size:17px;
+    font-weight:700;
+    margin-top:8px;
+    border-radius:14px;
+    padding:8px;
+    transition:.2s;
+  }
+  .feedback.good{ color:#2E9B6F; background:#E7FBF1; }
+  .feedback.bad{ color:#D96B84; background:#FFEEF2; }
+
+  /* ---------- Result Screen ---------- */
+  h2.result-title{
+    text-align:center;
+    font-size:28px;
+    color:var(--mint-dark);
+    margin:0 0 4px;
+  }
+  .who{
+    text-align:center;
+    color:var(--text-light);
+    font-size:13px;
+    margin-bottom:22px;
+  }
+  .stat-row{
+    display:flex;
+    gap:14px;
+    margin-bottom:22px;
+  }
+  .stat-box{
+    flex:1;
+    background:#FFF8EE;
+    border-radius:20px;
+    padding:16px 10px;
+    text-align:center;
+    border:2px solid #FBE8CE;
+  }
+  .stat-box .num{
+    font-family:'Baloo 2', sans-serif;
+    font-size:30px;
+    font-weight:800;
+    color:var(--pink-dark);
+  }
+  .stat-box .lbl{
+    font-size:12px;
+    color:var(--text-light);
+    margin-top:2px;
+  }
+  table.review{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+    margin-bottom:22px;
+  }
+  table.review th{
+    background:#FFF1DE;
+    color:var(--yellow-dark);
+    padding:8px 6px;
+    font-size:12px;
+    position:sticky;
+    top:0;
+  }
+  table.review td{
+    padding:7px 6px;
+    text-align:center;
+    border-bottom:1px solid #F3ECE0;
+  }
+  table.review td.eng{ font-family:'Baloo 2', sans-serif; font-weight:700; }
+  .scrollwrap{
+    max-height:280px;
+    overflow-y:auto;
+    border-radius:16px;
+    border:2px solid #F3ECE0;
+    margin-bottom:22px;
+  }
+  .tag{
+    display:inline-block;
+    border-radius:999px;
+    padding:2px 8px;
+    font-size:11px;
+    font-weight:700;
+  }
+  .tag.ok{ background:#E7FBF1; color:#2E9B6F; }
+  .tag.no{ background:#FFEEF2; color:#D96B84; }
+
+  .hidden{ display:none; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="card" id="app"></div>
+</div>
+
+<script>
+/* ---------------- 資料 ---------------- */
+const VERBS = [
+  {cn:"讓", base:"let", past:"let"},
+  {cn:"放", base:"put", past:"put"},
+  {cn:"閱讀", base:"read", past:"read"},
+  {cn:"建造", base:"build", past:"built"},
+  {cn:"可以；會", base:"can", past:"could"},
+  {cn:"來", base:"come", past:"came"},
+  {cn:"做", base:"do", past:"did"},
+  {cn:"畫圖", base:"draw", past:"drew"},
+  {cn:"喝", base:"drink", past:"drank"},
+  {cn:"吃", base:"eat", past:"ate"},
+  {cn:"跌落；發生", base:"fall", past:"fell"},
+  {cn:"打架；對抗", base:"fight", past:"fought"},
+  {cn:"飛", base:"fly", past:"flew"},
+  {cn:"得到", base:"get", past:"got"},
+  {cn:"去", base:"go", past:"went"},
+  {cn:"擁有；吃喝", base:"have", past:"had"},
+  {cn:"躲藏", base:"hide", past:"hid"},
+  {cn:"知道；認識", base:"know", past:"knew"},
+  {cn:"借出", base:"lend", past:"lent"},
+  {cn:"失去", base:"lose", past:"lost"},
+  {cn:"製作", base:"make", past:"made"},
+  {cn:"可能", base:"may", past:"might"},
+  {cn:"遇見", base:"meet", past:"met"},
+  {cn:"騎；乘", base:"ride", past:"rode"},
+  {cn:"跑", base:"run", past:"ran"},
+  {cn:"說話", base:"say", past:"said"},
+  {cn:"看見", base:"see", past:"saw"},
+  {cn:"賣", base:"sell", past:"sold"},
+  {cn:"握手；搖動", base:"shake", past:"shook"},
+  {cn:"唱歌", base:"sing", past:"sang"},
+  {cn:"坐", base:"sit", past:"sat"},
+  {cn:"睡覺", base:"sleep", past:"slept"},
+  {cn:"站", base:"stand", past:"stood"},
+  {cn:"游泳", base:"swim", past:"swam"},
+  {cn:"取；拿", base:"take", past:"took"},
+  {cn:"醒來", base:"wake", past:"woke"},
+  {cn:"寫", base:"write", past:"wrote"}
+];
+
+const TIME_LIMIT_MS = 5 * 60 * 1000; // 5 分鐘
+
+let state = null;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function fmtTime(ms){
+  const s = Math.max(0, Math.round(ms/1000));
+  const m = Math.floor(s/60);
+  const r = s%60;
+  return String(m).padStart(2,'0')+":"+String(r).padStart(2,'0');
+}
+
+/* ---------------- 畫面：輸入資料 ---------------- */
+function renderEntry(){
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <h1 class="game-title title-font">不規則動詞<br>過去式大挑戰</h1>
+    <p class="game-sub">在 5 分鐘內，看中文寫出動詞的過去式，答對才能進入下一題，挑戰看看能答對幾題！</p>
+    <div class="field">
+      <label>班級</label>
+      <input id="in-class" type="text" placeholder="例如：701" inputmode="text">
+    </div>
+    <div class="field">
+      <label>座號</label>
+      <input id="in-seat" type="number" placeholder="例如：12" inputmode="numeric">
+    </div>
+    <div class="field">
+      <label>姓名</label>
+      <input id="in-name" type="text" placeholder="例如：王小明">
+    </div>
+    <div class="err" id="entry-err"></div>
+    <button class="btn" id="start-btn">開始挑戰 🚀</button>
+  `;
+  document.getElementById('start-btn').onclick = () => {
+    const cls = document.getElementById('in-class').value.trim();
+    const seat = document.getElementById('in-seat').value.trim();
+    const name = document.getElementById('in-name').value.trim();
+    if(!cls || !seat || !name){
+      document.getElementById('entry-err').textContent = "請把班級、座號、姓名都填寫完成喔！";
+      return;
+    }
+    startGame(cls, seat, name);
+  };
+  ['in-class','in-seat','in-name'].forEach(id=>{
+    document.getElementById(id).addEventListener('keydown', e=>{
+      if(e.key==='Enter') document.getElementById('start-btn').click();
+    });
+  });
+}
+
+/* ---------------- 開始遊戲 ---------------- */
+function startGame(cls, seat, name){
+  const now = Date.now();
+  state = {
+    student:{cls, seat, name},
+    queue: shuffle(VERBS),
+    currentQ: null,
+    index: 0,
+    startTime: now,
+    deadline: now + TIME_LIMIT_MS,
+    endTime: null,
+    ended: false,
+    results: [], // {cn, base, correctPast, attempts, userAnswers:[], firstTryCorrect, completed}
+    timerInterval: null
+  };
+  state.timerInterval = setInterval(tick, 500);
+  nextQuestion();
+}
+
+/* ---------------- 抽下一題（隨機，題庫用完自動重新洗牌） ---------------- */
+function nextQuestion(){
+  if(state.queue.length === 0){
+    state.queue = shuffle(VERBS);
+    if(state.currentQ && state.queue.length > 1 && state.queue[state.queue.length-1].base === state.currentQ.base){
+      const a = state.queue.length-1, b = state.queue.length-2;
+      [state.queue[a], state.queue[b]] = [state.queue[b], state.queue[a]];
+    }
+  }
+  state.currentQ = state.queue.pop();
+  state.index += 1;
+  state.results.push({cn:state.currentQ.cn, base:state.currentQ.base, correctPast:state.currentQ.past, attempts:0, userAnswers:[], firstTryCorrect:null, completed:false});
+  renderQuestion();
+}
+
+/* ---------------- 倒數計時（每 0.5 秒檢查一次） ---------------- */
+function tick(){
+  if(!state || state.ended) return;
+  const remaining = state.deadline - Date.now();
+  if(remaining <= 0){
+    endGame();
+    return;
+  }
+  const timerPill = document.getElementById('timer-pill');
+  if(timerPill) timerPill.textContent = "⏳ 剩餘 " + fmtTime(remaining);
+  const fill = document.getElementById('progress-fill');
+  if(fill){
+    const pct = Math.max(0, Math.min(100, (remaining/TIME_LIMIT_MS)*100));
+    fill.style.width = pct + "%";
+    fill.classList.toggle('low', remaining < 60000);
+  }
+}
+
+/* ---------------- 畫面：題目 ---------------- */
+function renderQuestion(){
+  const app = document.getElementById('app');
+  const q = state.currentQ;
+  const remaining = Math.max(0, state.deadline - Date.now());
+  const pct = Math.max(0, Math.min(100, (remaining/TIME_LIMIT_MS)*100));
+
+  app.innerHTML = `
+    <div class="topbar">
+      <div class="pill">📘 第 ${state.index} 題</div>
+      <div class="pill" id="timer-pill">⏳ 剩餘 ${fmtTime(remaining)}</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill${remaining<60000?' low':''}" id="progress-fill" style="width:${pct}%"></div></div>
+    <div class="cn-word" id="cn-word">${q.cn}</div>
+    <div class="base-box">
+      <span class="label">動詞原形</span><br>
+      <span class="word eng-font">${q.base}</span>
+    </div>
+    <div class="answer-row">
+      <input id="ans-input" type="text" placeholder="請寫出過去式" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button id="submit-btn">送出</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+  `;
+
+  const input = document.getElementById('ans-input');
+  input.focus();
+  input.addEventListener('keydown', e=>{
+    if(e.key==='Enter') checkAnswer();
+  });
+  document.getElementById('submit-btn').onclick = checkAnswer;
+}
+
+function checkAnswer(){
+  if(!state || state.ended) return;
+  const q = state.currentQ;
+  const input = document.getElementById('ans-input');
+  const val = input.value.trim();
+  if(!val) return;
+
+  const rec = state.results[state.results.length-1];
+  rec.attempts += 1;
+  rec.userAnswers.push(val);
+  const isCorrect = val.toLowerCase() === q.past.toLowerCase();
+  if(rec.firstTryCorrect === null){
+    rec.firstTryCorrect = isCorrect;
+  }
+
+  const feedback = document.getElementById('feedback');
+  const cnWord = document.getElementById('cn-word');
+
+  if(isCorrect){
+    rec.completed = true;
+    feedback.className = "feedback good";
+    feedback.textContent = "🎉 你好棒！答對了！";
+    cnWord.className = "cn-word happy";
+    input.disabled = true;
+    document.getElementById('submit-btn').disabled = true;
+    setTimeout(()=>{
+      if(state.ended) return;
+      if(Date.now() >= state.deadline){
+        endGame();
+      } else {
+        nextQuestion();
+      }
+    }, 700);
+  } else {
+    feedback.className = "feedback bad";
+    feedback.textContent = "💪 沒關係，我們再挑戰一次！";
+    cnWord.className = "cn-word sad";
+    input.value = "";
+    input.focus();
+    setTimeout(()=>{ const el = document.getElementById('cn-word'); if(el) el.className = "cn-word"; }, 500);
+  }
+}
+
+/* ---------------- 時間到，結束遊戲 ---------------- */
+function endGame(){
+  if(!state || state.ended) return;
+  state.ended = true;
+  clearInterval(state.timerInterval);
+  state.endTime = Date.now();
+  renderResult();
+}
+
+/* ---------------- 畫面：結果 ---------------- */
+function renderResult(){
+  const app = document.getElementById('app');
+  const attempted = state.results.length;
+  const completedCount = state.results.filter(r=>r.completed).length;
+  const firstTryCount = state.results.filter(r=>r.completed && r.firstTryCorrect).length;
+  const accuracy = completedCount > 0 ? Math.round((firstTryCount/completedCount)*100) : 0;
+  const elapsed = Math.min(state.endTime - state.startTime, TIME_LIMIT_MS);
+
+  const rows = state.results.map((r,i)=>{
+    const yourAnswer = r.userAnswers.length ? r.userAnswers[r.userAnswers.length-1] : '-';
+    let tag;
+    if(r.completed && r.firstTryCorrect) tag = '<span class="tag ok">✅ 一次答對</span>';
+    else if(r.completed) tag = '<span class="tag ok">🔁 重新答對</span>';
+    else tag = '<span class="tag no">⏰ 未完成</span>';
+    return `
+      <tr>
+        <td>${i+1}</td>
+        <td class="eng">${r.base}</td>
+        <td>${r.cn}</td>
+        <td class="eng">${r.correctPast}</td>
+        <td class="eng">${yourAnswer}</td>
+        <td>${r.attempts}</td>
+        <td>${tag}</td>
+      </tr>
+    `;
+  }).join('');
+
+  app.innerHTML = `
+    <h2 class="result-title title-font">🌟 時間到！挑戰結束！ 🌟</h2>
+    <div class="who">${state.student.cls} 班 ${state.student.seat} 號　${state.student.name}</div>
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="num eng-font">${completedCount}</div>
+        <div class="lbl">5 分鐘內答對題數</div>
+      </div>
+      <div class="stat-box">
+        <div class="num eng-font">${accuracy}%</div>
+        <div class="lbl">一次答對率</div>
+      </div>
+      <div class="stat-box">
+        <div class="num eng-font">${fmtTime(elapsed)}</div>
+        <div class="lbl">花費時間</div>
+      </div>
+    </div>
+    <div class="scrollwrap">
+      <table class="review">
+        <thead>
+          <tr>
+            <th>#</th><th>原形</th><th>中文</th><th>正確答案</th><th>你的答案</th><th>嘗試次數</th><th>結果</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <button class="btn secondary" id="replay-btn">再玩一次 🔄</button>
+  `;
+
+  document.getElementById('replay-btn').onclick = renderEntry;
+}
+
+/* ---------------- 啟動 ---------------- */
+renderEntry();
+</script>
+</body>
+</html>
