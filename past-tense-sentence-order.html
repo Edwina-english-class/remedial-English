@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>過去式句子重組</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF6EA;
+    --paper:#FFFDF8;
+    --pink:#FF9EB5;
+    --pink-deep:#FF7A9A;
+    --sky:#8ED2E8;
+    --sky-deep:#5AB6D1;
+    --mint:#A6E6C3;
+    --mint-deep:#6FD19E;
+    --sun:#FFD268;
+    --sun-deep:#FFB93E;
+    --plum:#4A3B47;
+    --plum-soft:#8A7A87;
+    --line:#EADFD0;
+    --shadow: 0 6px 0 rgba(74,59,71,0.15);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 12% 18%, rgba(142,210,232,0.35) 0, transparent 40%),
+      radial-gradient(circle at 88% 12%, rgba(255,158,181,0.35) 0, transparent 38%),
+      radial-gradient(circle at 90% 85%, rgba(166,230,195,0.35) 0, transparent 42%),
+      var(--cream);
+    font-family:'Noto Sans TC','Baloo 2',sans-serif;
+    color:var(--plum);
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:24px 14px 60px;
+  }
+  .stage{
+    width:100%;
+    max-width:760px;
+  }
+  .brandbar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    justify-content:center;
+    margin-bottom:18px;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    color:var(--plum-soft);
+    letter-spacing:2px;
+    font-size:13px;
+  }
+  .brandbar .dot{width:6px;height:6px;border-radius:50%;background:var(--pink-deep);}
+
+  .card{
+    background:var(--paper);
+    border-radius:28px;
+    border:3px solid var(--plum);
+    box-shadow: 8px 8px 0 var(--plum);
+    padding:32px 28px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute; top:-40px; right:-40px;
+    width:120px;height:120px;border-radius:50%;
+    background:var(--sun); opacity:0.5;
+  }
+
+  h1.title{
+    font-family:'Baloo 2',sans-serif;
+    font-size:30px;
+    font-weight:800;
+    margin:0 0 4px;
+    color:var(--plum);
+    position:relative;
+  }
+  .subtitle{
+    font-size:14px;
+    color:var(--plum-soft);
+    margin:0 0 22px;
+    font-weight:500;
+  }
+
+  /* Mascot cloud */
+  .mascot{
+    width:96px;height:78px;
+    margin:0 auto 10px;
+    position:relative;
+  }
+  .mascot svg{width:100%;height:100%;display:block;}
+  .mascot.bounce{animation:bounce .6s ease;}
+  .mascot.shake{animation:shake .5s ease;}
+  @keyframes bounce{
+    0%{transform:translateY(0) scale(1);}
+    30%{transform:translateY(-14px) scale(1.06);}
+    55%{transform:translateY(0) scale(0.97);}
+    75%{transform:translateY(-6px) scale(1.02);}
+    100%{transform:translateY(0) scale(1);}
+  }
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-8px) rotate(-4deg);}
+    40%{transform:translateX(8px) rotate(4deg);}
+    60%{transform:translateX(-6px) rotate(-3deg);}
+    80%{transform:translateX(6px) rotate(3deg);}
+  }
+
+  /* ---------- START SCREEN ---------- */
+  .field{
+    margin-bottom:16px;
+  }
+  .field label{
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    color:var(--plum-soft);
+    margin-bottom:6px;
+    font-family:'Baloo 2',sans-serif;
+  }
+  .field input{
+    width:100%;
+    padding:13px 16px;
+    border-radius:16px;
+    border:2.5px solid var(--line);
+    background:#fff;
+    font-size:16px;
+    font-family:'Noto Sans TC',sans-serif;
+    color:var(--plum);
+    outline:none;
+    transition:border-color .15s, transform .15s;
+  }
+  .field input:focus{border-color:var(--sky-deep); transform:translateY(-1px);}
+  .field-row{display:flex; gap:12px;}
+  .field-row .field{flex:1; margin-bottom:16px;}
+
+  .btn{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    border:3px solid var(--plum);
+    border-radius:18px;
+    padding:14px 26px;
+    cursor:pointer;
+    background:var(--sun);
+    color:var(--plum);
+    box-shadow: 5px 5px 0 var(--plum);
+    transition: transform .1s, box-shadow .1s;
+  }
+  .btn:hover{transform:translate(-1px,-1px); box-shadow:6px 6px 0 var(--plum);}
+  .btn:active{transform:translate(3px,3px); box-shadow:1px 1px 0 var(--plum);}
+  .btn.primary{background:var(--pink);}
+  .btn.secondary{background:var(--sky); font-size:14px; padding:10px 18px;}
+  .btn.ghost{background:#fff;}
+  .btn:disabled{opacity:0.45; cursor:not-allowed;}
+  .btn-row{display:flex; gap:12px; justify-content:center; margin-top:8px; flex-wrap:wrap;}
+
+  .hint-box{
+    background:var(--mint);
+    border:2.5px dashed var(--plum);
+    border-radius:16px;
+    padding:12px 16px;
+    font-size:13px;
+    color:var(--plum);
+    margin-top:18px;
+    line-height:1.6;
+  }
+
+  /* ---------- GAME SCREEN ---------- */
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .pill{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    background:var(--sky);
+    border:2px solid var(--plum);
+    border-radius:999px;
+    padding:6px 14px;
+    color:var(--plum);
+  }
+  .progress-track{
+    height:14px;
+    background:#F0E9DA;
+    border:2px solid var(--plum);
+    border-radius:999px;
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--mint-deep), var(--sky-deep));
+    border-radius:999px;
+    transition:width .4s ease;
+  }
+
+  .zh-hint{
+    text-align:center;
+    font-size:20px;
+    font-weight:700;
+    color:var(--plum);
+    background:var(--cream);
+    border:2.5px solid var(--line);
+    border-radius:18px;
+    padding:16px 14px;
+    margin-bottom:18px;
+    line-height:1.5;
+  }
+  .zh-hint .tag{
+    display:block;
+    font-family:'Baloo 2',sans-serif;
+    font-size:11px;
+    letter-spacing:2px;
+    color:var(--plum-soft);
+    margin-bottom:6px;
+    font-weight:700;
+  }
+
+  .answer-zone{
+    min-height:76px;
+    background:#fff;
+    border:3px solid var(--plum);
+    border-radius:18px;
+    padding:14px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-content:flex-start;
+    margin-bottom:16px;
+    position:relative;
+  }
+  .answer-zone.empty::after{
+    content:"點下方單字卡，把句子排在這裡吧！";
+    color:#CBBFAF;
+    font-size:14px;
+    font-weight:500;
+    align-self:center;
+  }
+
+  .bank-zone{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    padding:16px 6px 6px;
+    margin-bottom:20px;
+    min-height:60px;
+  }
+
+  .chip{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    padding:10px 18px;
+    border-radius:14px;
+    border:2.5px solid var(--plum);
+    cursor:pointer;
+    user-select:none;
+    transition: transform .12s, box-shadow .12s, opacity .12s;
+    box-shadow: 3px 3px 0 var(--plum);
+    background:var(--sun);
+  }
+  .chip:hover{transform:translateY(-2px);}
+  .chip:active{transform:translate(1px,1px); box-shadow:1px 1px 0 var(--plum);}
+  .chip.placed{background:var(--pink); }
+  .chip.bank-item:nth-child(4n+1){background:var(--sun);}
+  .chip.bank-item:nth-child(4n+2){background:var(--sky);}
+  .chip.bank-item:nth-child(4n+3){background:var(--mint);}
+  .chip.bank-item:nth-child(4n+4){background:#F3C6E0;}
+
+  .feedback-banner{
+    text-align:center;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:22px;
+    padding:12px;
+    border-radius:16px;
+    margin-bottom:14px;
+    display:none;
+    border:2.5px solid var(--plum);
+  }
+  .feedback-banner.correct{background:var(--mint); color:#215B3D; display:block;}
+  .feedback-banner.wrong{background:#FFD3D3; color:#8A2B2B; display:block;}
+
+  /* ---------- END SCREEN ---------- */
+  .stats-row{
+    display:flex;
+    gap:14px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .stat-card{
+    flex:1;
+    min-width:140px;
+    background:var(--cream);
+    border:2.5px solid var(--plum);
+    border-radius:18px;
+    padding:16px;
+    text-align:center;
+  }
+  .stat-card .num{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:30px;
+    color:var(--pink-deep);
+  }
+  .stat-card .lbl{
+    font-size:12px;
+    color:var(--plum-soft);
+    font-weight:700;
+    margin-top:2px;
+  }
+
+  table.results{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:22px;
+    font-size:13px;
+  }
+  table.results th{
+    background:var(--plum);
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    padding:10px 8px;
+    text-align:left;
+    font-size:12px;
+  }
+  table.results th:first-child{border-radius:10px 0 0 0;}
+  table.results th:last-child{border-radius:0 10px 0 0;}
+  table.results td{
+    padding:9px 8px;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  table.results tr:nth-child(even) td{background:#FBF6EC;}
+  .badge{
+    display:inline-block;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:11px;
+    padding:3px 9px;
+    border-radius:999px;
+  }
+  .badge.ok{background:var(--mint); color:#215B3D;}
+  .badge.retry{background:#FFE1B0; color:#8A5A16;}
+
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  @media (max-width:520px){
+    .card{padding:22px 16px; border-radius:22px;}
+    h1.title{font-size:24px;}
+    .zh-hint{font-size:17px;}
+    .chip{font-size:14px; padding:9px 14px;}
+    .field-row{flex-direction:column; gap:0;}
+    table.results{font-size:11.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="brandbar"><span class="dot"></span>英語過去式 · 句子重組冒險<span class="dot"></span></div>
+
+  <!-- ================= START SCREEN ================= -->
+  <div class="screen active" id="screen-start">
+    <div class="card">
+      <div class="mascot" id="mascot-start"></div>
+      <h1 class="title">過去式句子重組！✉️</h1>
+      <p class="subtitle">把打亂的句子排成正確順序!</p>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="in-class">班級</label>
+          <input id="in-class" type="text" placeholder="例如：701">
+        </div>
+        <div class="field">
+          <label for="in-number">座號</label>
+          <input id="in-number" type="text" placeholder="例如：12" inputmode="numeric">
+        </div>
+      </div>
+      <div class="field">
+        <label for="in-name">姓名</label>
+        <input id="in-name" type="text" placeholder="請輸入你的姓名">
+      </div>
+      <p id="start-error" style="color:#C0392B; font-size:13px; font-weight:700; display:none; margin:0 0 10px;">請把班級、座號、姓名都填寫完整喔！</p>
+
+      <div class="btn-row">
+        <button class="btn primary" id="btn-start">開始遊戲 🚀</button>
+      </div>
+
+      <div class="hint-box">
+        📌 每次遊戲隨機出 10 題，每題會給中文提示。答對才能進入下一題，答錯可以再試一次！
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= GAME SCREEN ================= -->
+  <div class="screen" id="screen-game">
+    <div class="card">
+      <div class="topbar">
+        <span class="pill" id="pill-player">—</span>
+        <span class="pill" id="pill-timer">⏱ 00:00</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+
+      <div class="mascot" id="mascot-game"></div>
+
+      <div class="zh-hint">
+        <span class="tag">中文提示 · 第 <span id="q-index">1</span> / 10 題</span>
+        <span id="zh-text">—</span>
+      </div>
+
+      <div id="feedback-banner" class="feedback-banner"></div>
+
+      <div class="answer-zone empty" id="answer-zone"></div>
+      <div class="bank-zone" id="bank-zone"></div>
+
+      <div class="btn-row">
+        <button class="btn secondary" id="btn-reset">🔄 清空重排</button>
+        <button class="btn primary" id="btn-submit" disabled>✅ 送出答案</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= END SCREEN ================= -->
+  <div class="screen" id="screen-end">
+    <div class="card">
+      <div class="mascot" id="mascot-end"></div>
+      <h1 class="title">任務完成！🎉</h1>
+      <p class="subtitle" id="end-player-line">—</p>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="num" id="stat-accuracy">0%</div>
+          <div class="lbl">首次答對率</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="stat-time">00:00</div>
+          <div class="lbl">總花費時間</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="stat-correct">0/10</div>
+          <div class="lbl">首次答對題數</div>
+        </div>
+      </div>
+
+      <table class="results">
+        <thead>
+          <tr><th>#</th><th>中文提示</th><th>正確句子</th><th>嘗試次數</th><th>結果</th></tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+
+      <div class="btn-row">
+        <button class="btn primary" id="btn-replay">🔁 再玩一次</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const SENTENCE_POOL = [
+  { en: "He flew a kite an hour ago.", zh: "他一小時前放風箏。" },
+  { en: "Kevin visited his uncle last week.", zh: "Kevin上星期拜訪了他的叔叔。" },
+  { en: "They didn't play basketball yesterday afternoon.", zh: "他們昨天下午沒有打籃球。" },
+  { en: "We watched a movie last night.", zh: "我們昨晚看了一部電影。" },
+  { en: "Did you take out the trash yesterday?", zh: "你昨天倒垃圾了嗎？" },
+  { en: "Was she a nurse before?", zh: "她以前是護士嗎？" },
+  { en: "Mom was a singer before.", zh: "媽媽以前是歌手。" },
+  { en: "Mark wasn't a student then.", zh: "Mark那時候不是學生。" },
+  { en: "Jamie didn't go to the library at that time.", zh: "Jamie那時候沒有去圖書館。" },
+  { en: "Did Yuki buy chicken rice?", zh: "Yuki買雞肉飯了嗎？" },
+  { en: "It was hot yesterday.", zh: "昨天很熱。" },
+  { en: "I lent him a book last night.", zh: "我昨晚借給他一本書。" },
+  { en: "Grandma made a cake for me last Friday.", zh: "奶奶上星期五做了一個蛋糕給我。" },
+  { en: "Was she sick?", zh: "她生病了嗎？" }
+];
+
+/* ---------------- MASCOT SVGs ---------------- */
+const MASCOT_NEUTRAL = `<svg viewBox="0 0 100 80"><ellipse cx="50" cy="46" rx="46" ry="30" fill="#FFF6EA" stroke="#4A3B47" stroke-width="3"/><circle cx="20" cy="34" r="16" fill="#FFF6EA" stroke="#4A3B47" stroke-width="3"/><circle cx="80" cy="34" r="16" fill="#FFF6EA" stroke="#4A3B47" stroke-width="3"/><circle cx="35" cy="44" r="4.5" fill="#4A3B47"/><circle cx="65" cy="44" r="4.5" fill="#4A3B47"/><path d="M40 58 Q50 64 60 58" fill="none" stroke="#4A3B47" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="52" r="5" fill="#FF9EB5" opacity="0.7"/><circle cx="76" cy="52" r="5" fill="#FF9EB5" opacity="0.7"/></svg>`;
+const MASCOT_HAPPY = `<svg viewBox="0 0 100 80"><ellipse cx="50" cy="46" rx="46" ry="30" fill="#A6E6C3" stroke="#4A3B47" stroke-width="3"/><circle cx="20" cy="34" r="16" fill="#A6E6C3" stroke="#4A3B47" stroke-width="3"/><circle cx="80" cy="34" r="16" fill="#A6E6C3" stroke="#4A3B47" stroke-width="3"/><path d="M29 42 Q35 34 41 42" fill="none" stroke="#4A3B47" stroke-width="3" stroke-linecap="round"/><path d="M59 42 Q65 34 71 42" fill="none" stroke="#4A3B47" stroke-width="3" stroke-linecap="round"/><path d="M36 56 Q50 70 64 56" fill="none" stroke="#4A3B47" stroke-width="3.5" stroke-linecap="round"/><circle cx="24" cy="52" r="5.5" fill="#FF7A9A" opacity="0.8"/><circle cx="76" cy="52" r="5.5" fill="#FF7A9A" opacity="0.8"/></svg>`;
+const MASCOT_SAD = `<svg viewBox="0 0 100 80"><ellipse cx="50" cy="46" rx="46" ry="30" fill="#FFD3D3" stroke="#4A3B47" stroke-width="3"/><circle cx="20" cy="34" r="16" fill="#FFD3D3" stroke="#4A3B47" stroke-width="3"/><circle cx="80" cy="34" r="16" fill="#FFD3D3" stroke="#4A3B47" stroke-width="3"/><circle cx="35" cy="45" r="4.5" fill="#4A3B47"/><circle cx="65" cy="45" r="4.5" fill="#4A3B47"/><path d="M40 62 Q50 54 60 62" fill="none" stroke="#4A3B47" stroke-width="3" stroke-linecap="round"/></svg>`;
+
+function setMascot(id, type){
+  document.getElementById(id).innerHTML = type==='happy'?MASCOT_HAPPY:(type==='sad'?MASCOT_SAD:MASCOT_NEUTRAL);
+}
+setMascot('mascot-start','neutral');
+setMascot('mascot-game','neutral');
+setMascot('mascot-end','happy');
+
+/* ---------------- STATE ---------------- */
+let player = { klass:"", number:"", name:"" };
+let quiz = [];          // 10 selected sentences {en, zh, tokens}
+let currentQ = 0;
+let bankTokens = [];    // remaining word objects {word,id}
+let answerTokens = [];  // placed word objects
+let attemptsThisQ = 0;
+let results = [];       // {zh, en, attempts, firstTry}
+let timerStart = null;
+let timerInterval = null;
+
+/* ---------------- HELPERS ---------------- */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function tokenize(sentence){
+  return sentence.split(" ");
+}
+
+function scrambledTokens(tokens){
+  if(tokens.length<=1) return tokens.map((w,i)=>({word:w,id:i}));
+  let shuffled;
+  let tries=0;
+  do{
+    shuffled = shuffle(tokens.map((w,i)=>({word:w,id:i})));
+    tries++;
+  } while(shuffled.map(t=>t.word).join(" ")===tokens.join(" ") && tries<20);
+  return shuffled;
+}
+
+function formatTime(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,"0");
+  const s = Math.floor(sec%60).toString().padStart(2,"0");
+  return m+":"+s;
+}
+
+/* ---------------- START SCREEN LOGIC ---------------- */
+document.getElementById('btn-start').addEventListener('click', ()=>{
+  const klass = document.getElementById('in-class').value.trim();
+  const number = document.getElementById('in-number').value.trim();
+  const name = document.getElementById('in-name').value.trim();
+  const err = document.getElementById('start-error');
+  if(!klass || !number || !name){
+    err.style.display = 'block';
+    return;
+  }
+  err.style.display = 'none';
+  player = { klass, number, name };
+  startNewGame();
+});
+
+/* ---------------- GAME FLOW ---------------- */
+function startNewGame(){
+  const pool = shuffle(SENTENCE_POOL);
+  quiz = pool.slice(0,10).map(item => ({...item, tokens: tokenize(item.en)}));
+  currentQ = 0;
+  results = [];
+  timerStart = Date.now();
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimerDisplay, 1000);
+
+  document.getElementById('pill-player').textContent = `${player.klass}班 ${player.number}號 ${player.name}`;
+  showScreen('screen-game');
+  loadQuestion();
+}
+
+function updateTimerDisplay(){
+  const sec = (Date.now()-timerStart)/1000;
+  document.getElementById('pill-timer').textContent = "⏱ " + formatTime(sec);
+}
+
+function loadQuestion(){
+  attemptsThisQ = 0;
+  const q = quiz[currentQ];
+  document.getElementById('q-index').textContent = currentQ+1;
+  document.getElementById('zh-text').textContent = q.zh;
+  document.getElementById('progress-fill').style.width = ((currentQ)/10*100)+"%";
+  bankTokens = scrambledTokens(q.tokens);
+  answerTokens = [];
+  document.getElementById('feedback-banner').style.display = 'none';
+  document.getElementById('feedback-banner').className = 'feedback-banner';
+  setMascot('mascot-game','neutral');
+  renderZones();
+}
+
+function renderZones(){
+  const answerZone = document.getElementById('answer-zone');
+  const bankZone = document.getElementById('bank-zone');
+  answerZone.innerHTML = "";
+  bankZone.innerHTML = "";
+
+  if(answerTokens.length===0){
+    answerZone.classList.add('empty');
+  } else {
+    answerZone.classList.remove('empty');
+    answerTokens.forEach((tok, idx)=>{
+      const chip = document.createElement('div');
+      chip.className = 'chip placed';
+      chip.textContent = tok.word;
+      chip.addEventListener('click', ()=>{
+        answerTokens.splice(idx,1);
+        bankTokens.push(tok);
+        renderZones();
+      });
+      answerZone.appendChild(chip);
+    });
+  }
+
+  bankTokens.forEach((tok, idx)=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip bank-item';
+    chip.textContent = tok.word;
+    chip.addEventListener('click', ()=>{
+      bankTokens.splice(idx,1);
+      answerTokens.push(tok);
+      renderZones();
+    });
+    bankZone.appendChild(chip);
+  });
+
+  document.getElementById('btn-submit').disabled = bankTokens.length>0;
+}
+
+document.getElementById('btn-reset').addEventListener('click', ()=>{
+  const q = quiz[currentQ];
+  bankTokens = scrambledTokens(q.tokens);
+  answerTokens = [];
+  renderZones();
+});
+
+document.getElementById('btn-submit').addEventListener('click', ()=>{
+  attemptsThisQ++;
+  const q = quiz[currentQ];
+  const built = answerTokens.map(t=>t.word).join(" ");
+  const correct = built === q.en;
+  const banner = document.getElementById('feedback-banner');
+
+  if(correct){
+    banner.textContent = "太厲害了！";
+    banner.className = 'feedback-banner correct';
+    setMascot('mascot-game','happy');
+    document.getElementById('mascot-game').classList.remove('shake');
+    document.getElementById('mascot-game').classList.add('bounce');
+    results.push({ zh:q.zh, en:q.en, attempts:attemptsThisQ, firstTry: attemptsThisQ===1 });
+    document.getElementById('btn-submit').disabled = true;
+    document.getElementById('btn-reset').disabled = true;
+    setTimeout(()=>{
+      document.getElementById('mascot-game').classList.remove('bounce');
+      document.getElementById('btn-reset').disabled = false;
+      currentQ++;
+      if(currentQ>=10){
+        finishGame();
+      } else {
+        loadQuestion();
+      }
+    }, 1100);
+  } else {
+    banner.textContent = "我們再嘗試一次！";
+    banner.className = 'feedback-banner wrong';
+    setMascot('mascot-game','sad');
+    document.getElementById('mascot-game').classList.remove('bounce');
+    document.getElementById('mascot-game').classList.add('shake');
+    setTimeout(()=>{
+      document.getElementById('mascot-game').classList.remove('shake');
+      setMascot('mascot-game','neutral');
+      // send words back to bank for a fresh retry
+      bankTokens = scrambledTokens(q.tokens);
+      answerTokens = [];
+      renderZones();
+      banner.style.display = 'none';
+    }, 900);
+  }
+});
+
+/* ---------------- END SCREEN ---------------- */
+function finishGame(){
+  clearInterval(timerInterval);
+  document.getElementById('progress-fill').style.width = "100%";
+  const totalSec = (Date.now()-timerStart)/1000;
+  const firstTryCount = results.filter(r=>r.firstTry).length;
+  const accuracy = Math.round((firstTryCount/10)*100);
+
+  document.getElementById('end-player-line').textContent = `${player.klass}班 ${player.number}號 ${player.name} 的學習成效報告`;
+  document.getElementById('stat-accuracy').textContent = accuracy+"%";
+  document.getElementById('stat-time').textContent = formatTime(totalSec);
+  document.getElementById('stat-correct').textContent = firstTryCount+"/10";
+
+  const tbody = document.getElementById('results-body');
+  tbody.innerHTML = "";
+  results.forEach((r, i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${r.zh}</td>
+      <td>${r.en}</td>
+      <td>${r.attempts}</td>
+      <td><span class="badge ${r.firstTry?'ok':'retry'}">${r.firstTry?'首次答對':'嘗試 '+r.attempts+' 次'}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  showScreen('screen-end');
+}
+
+document.getElementById('btn-replay').addEventListener('click', ()=>{
+  startNewGame();
+});
+
+/* ---------------- SCREEN SWITCH ---------------- */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>
