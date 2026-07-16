@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>喵喵特搜隊：Do / Does 問答任務</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF8EF;
+    --lavender:#EFE6FF;
+    --pink:#FF8FAE;
+    --pink-deep:#FF6F98;
+    --purple:#9B7EDE;
+    --mint:#5FD9BE;
+    --yellow:#FFC94D;
+    --ink:#4A3B5C;
+    --ink-soft:#7C6B93;
+    --good:#43B383;
+    --bad:#FF6B6B;
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Nunito',sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 12% 18%, rgba(255,143,174,0.20), transparent 40%),
+      radial-gradient(circle at 88% 12%, rgba(155,126,222,0.20), transparent 42%),
+      radial-gradient(circle at 90% 85%, rgba(95,217,190,0.22), transparent 40%),
+      var(--cream);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px 14px;
+  }
+  .stage{width:100%;max-width:640px;}
+  .card{
+    background:var(--card);
+    border-radius:32px;
+    padding:34px 30px 28px;
+    box-shadow:0 18px 40px rgba(155,126,222,0.18), 0 4px 10px rgba(255,143,174,0.12);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:32px;
+    border:3px dashed rgba(155,126,222,0.25);
+    margin:8px;
+    pointer-events:none;
+  }
+  h1,h2,h3{font-family:'Fredoka',sans-serif;margin:0;}
+  .title-row{display:flex;align-items:center;gap:14px;justify-content:center;margin-bottom:6px;}
+  .app-title{font-size:26px;color:var(--ink);text-align:center;}
+  .app-sub{text-align:center;color:var(--ink-soft);font-weight:700;margin-bottom:18px;font-size:14px;}
+
+  /* ---------- Mascot ---------- */
+  .mascot-wrap{display:flex;justify-content:center;margin:6px 0 14px;}
+  .mascot{width:112px;height:112px;position:relative;animation:bob 2.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-6px) rotate(-2deg);}}
+  .mascot .ear{position:absolute;width:0;height:0;top:-18px;border-left:20px solid transparent;border-right:20px solid transparent;border-bottom:34px solid var(--yellow);}
+  .mascot .ear.left{left:2px;transform:rotate(-18deg);}
+  .mascot .ear.right{right:2px;transform:rotate(18deg);}
+  .mascot .ear-inner{position:absolute;width:0;height:0;top:-9px;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:18px solid #FFE2A8;}
+  .mascot .ear-inner.left{left:11px;transform:rotate(-18deg);}
+  .mascot .ear-inner.right{right:11px;transform:rotate(18deg);}
+  .mascot .head{position:absolute;top:6px;left:6px;width:100px;height:92px;background:var(--yellow);border-radius:52% 52% 48% 48% / 58% 58% 42% 42%;box-shadow:inset 0 -10px 14px rgba(0,0,0,0.05);}
+  .mascot .eye{position:absolute;top:44px;width:11px;height:14px;background:var(--ink);border-radius:50%;transition:all .15s ease;}
+  .mascot .eye.l{left:30px;}
+  .mascot .eye.r{right:30px;}
+  .mascot .cheek{position:absolute;top:60px;width:14px;height:9px;background:#FF9EB8;border-radius:50%;opacity:.7;}
+  .mascot .cheek.l{left:14px;}
+  .mascot .cheek.r{right:14px;}
+  .mascot .mouth{position:absolute;top:66px;left:50%;transform:translateX(-50%);width:22px;height:12px;border-bottom:4px solid var(--ink);border-radius:0 0 20px 20px;transition:all .15s ease;}
+  .mascot .whisker{position:absolute;top:60px;width:26px;height:2px;background:var(--ink-soft);opacity:.55;border-radius:2px;}
+  .mascot .whisker.l1{left:-16px;top:56px;} .mascot .whisker.l2{left:-16px;top:64px;}
+  .mascot .whisker.r1{right:-16px;top:56px;} .mascot .whisker.r2{right:-16px;top:64px;}
+
+  .mascot.happy .eye{height:6px;top:48px;border-radius:0 0 50% 50%;}
+  .mascot.happy .mouth{width:26px;height:16px;border-radius:0 0 26px 26px;border-bottom-width:5px;}
+  .mascot.happy{animation:happyjump .55s ease;}
+  @keyframes happyjump{0%{transform:translateY(0) scale(1);}40%{transform:translateY(-16px) scale(1.06);}100%{transform:translateY(0) scale(1);}}
+
+  .mascot.sad .eye{height:11px;top:46px;}
+  .mascot.sad .mouth{width:16px;height:8px;border-bottom:none;border-top:4px solid var(--ink);border-radius:20px 20px 0 0;top:70px;}
+  .mascot.sad{animation:shake .4s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+
+  /* ---------- Start Screen ---------- */
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-weight:800;font-size:13px;color:var(--purple);margin-bottom:5px;}
+  .field input{
+    width:100%;padding:12px 14px;border-radius:16px;border:2.5px solid var(--lavender);
+    font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:var(--ink);
+    background:#FBF9FF;transition:border-color .15s;
+  }
+  .field input:focus{outline:none;border-color:var(--pink);background:#fff;}
+  .btn{
+    display:block;width:100%;padding:14px;border:none;border-radius:20px;
+    font-family:'Fredoka',sans-serif;font-size:17px;font-weight:600;color:#fff;
+    background:linear-gradient(135deg,var(--pink),var(--pink-deep));
+    cursor:pointer;box-shadow:0 8px 18px rgba(255,111,152,0.35);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 12px 22px rgba(255,111,152,0.4);}
+  .btn:active{transform:translateY(0);}
+  .btn.secondary{background:linear-gradient(135deg,var(--mint),#3FC7A9);box-shadow:0 8px 18px rgba(95,217,190,0.35);}
+  .hint{font-size:12.5px;color:var(--ink-soft);text-align:center;margin-top:10px;font-weight:700;}
+
+  /* ---------- Progress trail ---------- */
+  .trail{display:flex;justify-content:center;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+  .paw{font-size:17px;opacity:.28;filter:grayscale(1);transition:all .25s ease;}
+  .paw.done{opacity:1;filter:none;transform:scale(1.05);}
+  .paw.current{opacity:1;filter:none;transform:scale(1.3);}
+
+  /* ---------- Game screen ---------- */
+  .qmeta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .qcount{font-family:'Fredoka',sans-serif;font-weight:600;color:var(--purple);font-size:14px;background:var(--lavender);padding:4px 12px;border-radius:12px;}
+  .timer{font-family:'Fredoka',sans-serif;font-weight:600;color:var(--pink-deep);font-size:14px;}
+  .chinese-box{
+    background:var(--lavender);border-radius:18px;padding:12px 16px;margin-bottom:16px;
+    font-weight:800;color:var(--purple);text-align:center;font-size:15px;
+  }
+  .sentence-box{
+    background:#FBF9FF;border:2.5px solid var(--lavender);border-radius:20px;
+    padding:20px 18px;font-size:19px;line-height:2.4;font-weight:700;color:var(--ink);
+    text-align:center;margin-bottom:14px;
+  }
+  .blank{
+    display:inline-block;width:76px;padding:4px 6px;margin:0 3px;
+    border:none;border-bottom:3px solid var(--purple);background:transparent;
+    font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;color:var(--pink-deep);
+    text-align:center;transition:all .15s ease;
+  }
+  .blank:focus{outline:none;border-bottom-color:var(--pink);background:#fff0f5;border-radius:8px 8px 0 0;}
+  .blank.wrong{border-bottom-color:var(--bad);background:#FFEDEE;animation:shakeInput .3s ease;}
+  .blank.correct{border-bottom-color:var(--good);background:#EAFBF3;color:var(--good);}
+  @keyframes shakeInput{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+
+  .feedback{
+    text-align:center;font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;
+    min-height:30px;margin-bottom:10px;transition:opacity .2s ease;
+  }
+  .feedback.good{color:var(--good);}
+  .feedback.bad{color:var(--bad);}
+
+  /* ---------- End screen ---------- */
+  .stats-row{display:flex;gap:14px;margin:18px 0;}
+  .stat-card{flex:1;background:var(--lavender);border-radius:20px;padding:16px 10px;text-align:center;}
+  .stat-card.mint{background:#E6FBF5;}
+  .stat-num{font-family:'Fredoka',sans-serif;font-size:28px;font-weight:700;color:var(--purple);}
+  .stat-card.mint .stat-num{color:#2FAE8E;}
+  .stat-label{font-size:12.5px;font-weight:800;color:var(--ink-soft);margin-top:2px;}
+
+  table{width:100%;border-collapse:separate;border-spacing:0 8px;font-size:13px;margin-top:8px;}
+  thead th{font-family:'Fredoka',sans-serif;font-size:12px;color:var(--purple);text-align:left;padding:0 8px 4px;}
+  tbody tr{background:#FBF9FF;}
+  tbody td{padding:10px 8px;color:var(--ink);font-weight:700;}
+  tbody tr td:first-child{border-radius:12px 0 0 12px;}
+  tbody tr td:last-child{border-radius:0 12px 12px 0;}
+  .badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:800;}
+  .badge.first{background:#EAFBF3;color:var(--good);}
+  .badge.retry{background:#FFF2E0;color:#E29A2C;}
+  .eng-cell{font-size:12px;color:var(--ink-soft);font-weight:700;max-width:170px;}
+
+  .hidden{display:none !important;}
+  .center{text-align:center;}
+  @media (max-width:420px){
+    .card{padding:24px 16px;}
+    .sentence-box{font-size:16px;}
+    .blank{width:62px;font-size:15px;}
+    .stats-row{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="card">
+
+    <!-- ========== START SCREEN ========== -->
+    <div id="screen-start">
+      <div class="mascot-wrap">
+        <div class="mascot" id="mascot-start">
+          <div class="ear left"></div><div class="ear right"></div>
+          <div class="ear-inner left"></div><div class="ear-inner right"></div>
+          <div class="head"></div>
+          <div class="whisker l1"></div><div class="whisker l2"></div>
+          <div class="whisker r1"></div><div class="whisker r2"></div>
+          <div class="cheek l"></div><div class="cheek r"></div>
+          <div class="eye l"></div><div class="eye r"></div>
+          <div class="mouth"></div>
+        </div>
+      </div>
+      <h1 class="app-title">喵喵特搜隊：Do / Does 問答任務</h1>
+      <p class="app-sub">和貓咪偵探 Whiskers 一起找出正確答案吧 🐾</p>
+
+      <div class="field">
+        <label for="in-class">班級</label>
+        <input id="in-class" type="text" placeholder="例如：701">
+      </div>
+      <div class="field">
+        <label for="in-seat">座號</label>
+        <input id="in-seat" type="text" placeholder="例如：12" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="in-name">姓名</label>
+        <input id="in-name" type="text" placeholder="請輸入你的姓名">
+      </div>
+      <button class="btn" id="btn-start">開始遊戲 🚀</button>
+      <p class="hint">共 10 題，答對才能進入下一題，加油！<br>句首要大寫，句中的空格要小寫喔 ✏️🔡</p>
+    </div>
+
+    <!-- ========== GAME SCREEN ========== -->
+    <div id="screen-game" class="hidden">
+      <div class="trail" id="trail"></div>
+      <div class="qmeta">
+        <span class="qcount" id="qcount">第 1 / 10 題</span>
+        <span class="timer" id="timer">⏱ 00:00</span>
+      </div>
+      <div class="chinese-box" id="chinese-box"></div>
+      <div class="sentence-box" id="sentence-box"></div>
+      <div class="feedback" id="feedback">&nbsp;</div>
+      <button class="btn" id="btn-check">送出答案 ✅</button>
+
+      <div class="mascot-wrap" style="margin-top:16px;">
+        <div class="mascot" id="mascot-game">
+          <div class="ear left"></div><div class="ear right"></div>
+          <div class="ear-inner left"></div><div class="ear-inner right"></div>
+          <div class="head"></div>
+          <div class="whisker l1"></div><div class="whisker l2"></div>
+          <div class="whisker r1"></div><div class="whisker r2"></div>
+          <div class="cheek l"></div><div class="cheek r"></div>
+          <div class="eye l"></div><div class="eye r"></div>
+          <div class="mouth"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== END SCREEN ========== -->
+    <div id="screen-end" class="hidden">
+      <div class="mascot-wrap">
+        <div class="mascot happy" id="mascot-end">
+          <div class="ear left"></div><div class="ear right"></div>
+          <div class="ear-inner left"></div><div class="ear-inner right"></div>
+          <div class="head"></div>
+          <div class="whisker l1"></div><div class="whisker l2"></div>
+          <div class="whisker r1"></div><div class="whisker r2"></div>
+          <div class="cheek l"></div><div class="cheek r"></div>
+          <div class="eye l"></div><div class="eye r"></div>
+          <div class="mouth"></div>
+        </div>
+      </div>
+      <h2 class="app-title" style="font-size:22px;">太棒了，<span id="end-name"></span>！挑戰完成 🎉</h2>
+      <p class="app-sub" id="end-who"></p>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-accuracy">0%</div>
+          <div class="stat-label">答對率（首次作答）</div>
+        </div>
+        <div class="stat-card mint">
+          <div class="stat-num" id="stat-time">00:00</div>
+          <div class="stat-label">總花費時間</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:14px;color:var(--purple);margin-bottom:2px;">📋 答題一覽表</h3>
+      <table>
+        <thead>
+          <tr><th>題號</th><th>題目</th><th>結果</th><th>嘗試次數</th><th>花費時間</th></tr>
+        </thead>
+        <tbody id="result-tbody"></tbody>
+      </table>
+
+      <button class="btn secondary" id="btn-restart" style="margin-top:22px;">再玩一次 🔁</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---------- Question bank ----------
+  // template: text with {0},{1},{2} blank placeholders
+  // blanks: correct answers for each placeholder (checked case-insensitively)
+  const QUESTIONS = [
+    {
+      chinese: "Ruby 喜歡柳橙嗎？是的，她喜歡。她喜歡柳橙。",
+      template: "{0} Ruby like oranges? Yes, she does. She {1} oranges.",
+      blanks: ["Does", "likes"]
+    },
+    {
+      chinese: "Elsa 每天喝咖啡嗎？不，她不喝。她每天不喝咖啡。",
+      template: "{0} Elsa drink coffee every day? No, she doesn't. She {1} {2} coffee every day.",
+      blanks: ["Does", "doesn't", "drink"]
+    },
+    {
+      chinese: "你先生每個週末做餅乾嗎？是的，他做。他每個週末做餅乾。",
+      template: "{0} your husband make cookies every weekend? Yes, he does. He {1} cookies every weekend.",
+      blanks: ["Does", "makes"]
+    },
+    {
+      chinese: "你的貓喜歡睡覺嗎？是的，牠喜歡。牠喜歡睡覺。",
+      template: "{0} your cat like to sleep? Yes, it does. It {1} to sleep.",
+      blanks: ["Does", "likes"]
+    },
+    {
+      chinese: "猴子吃香蕉嗎？不，牠不吃。牠不吃香蕉。",
+      template: "{0} the monkey eat bananas? No, it doesn't. It {1} {2} bananas.",
+      blanks: ["Does", "doesn't", "eat"]
+    },
+    {
+      chinese: "Jamie 和 Cody 喜歡狗嗎？不，他們不喜歡。他們不喜歡狗。",
+      template: "{0} Jamie and Cody love dogs? No, they don't. They {1} {2} dogs.",
+      blanks: ["Do", "don't", "love"]
+    },
+    {
+      chinese: "他們在圖書館看書嗎？是的，他們看書。他們在圖書館看書。",
+      template: "{0} they read books in the library? Yes, they do. They {1} books in the library.",
+      blanks: ["Do", "read"]
+    },
+    {
+      chinese: "你騎腳踏車上學嗎？不，我沒有。我不騎腳踏車上學。",
+      template: "{0} you ride a bike to school? No, I don't. I {1} {2} a bike to school.",
+      blanks: ["Do", "don't", "ride"]
+    },
+    {
+      chinese: "你的兄弟們說英文嗎？不，他們不會。他們不說英文。",
+      template: "{0} your brothers speak English? No, they don't. They {1} {2} English.",
+      blanks: ["Do", "don't", "speak"]
+    },
+    {
+      chinese: "Tom 和 Fred 打電動嗎？是的，他們打。他們打電動。",
+      template: "{0} Tom and Fred play video games? Yes, they do. They {1} video games.",
+      blanks: ["Do", "play"]
+    }
+  ];
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  // Cleans whitespace/quote variants only — case is preserved on purpose,
+  // since capitalization is graded strictly (capital at sentence start,
+  // lowercase everywhere else).
+  function cleanValue(str){
+    return str.trim().replace(/’/g, "'");
+  }
+
+  // ---------- State ----------
+  let student = {cls:"", seat:"", name:""};
+  let order = [];         // shuffled question objects
+  let qIndex = 0;
+  let records = [];       // per-question results
+  let quizStartTime = 0;
+  let qStartTime = 0;
+  let attemptsThisQ = 0;
+  let timerInterval = null;
+
+  // ---------- DOM refs ----------
+  const screenStart = document.getElementById('screen-start');
+  const screenGame  = document.getElementById('screen-game');
+  const screenEnd   = document.getElementById('screen-end');
+
+  const btnStart = document.getElementById('btn-start');
+  const btnCheck = document.getElementById('btn-check');
+  const btnRestart = document.getElementById('btn-restart');
+
+  const trailEl = document.getElementById('trail');
+  const qcountEl = document.getElementById('qcount');
+  const timerEl = document.getElementById('timer');
+  const chineseBox = document.getElementById('chinese-box');
+  const sentenceBox = document.getElementById('sentence-box');
+  const feedbackEl = document.getElementById('feedback');
+  const mascotGame = document.getElementById('mascot-game');
+  const mascotStart = document.getElementById('mascot-start');
+
+  // ---------- Start screen ----------
+  btnStart.addEventListener('click', () => {
+    const cls = document.getElementById('in-class').value.trim();
+    const seat = document.getElementById('in-seat').value.trim();
+    const name = document.getElementById('in-name').value.trim();
+    if(!cls || !seat || !name){
+      mascotStart.classList.remove('sad'); void mascotStart.offsetWidth;
+      mascotStart.classList.add('sad');
+      feedbackFlashStart("請完整填寫班級、座號、姓名喔！");
+      return;
+    }
+    student = {cls, seat, name};
+    startQuiz();
+  });
+
+  function feedbackFlashStart(msg){
+    let tip = document.getElementById('start-tip');
+    if(!tip){
+      tip = document.createElement('p');
+      tip.id = 'start-tip';
+      tip.style.cssText = 'text-align:center;color:var(--bad);font-weight:800;font-size:13px;margin-top:8px;';
+      btnStart.insertAdjacentElement('afterend', tip);
+    }
+    tip.textContent = msg;
+  }
+
+  // ---------- Quiz flow ----------
+  function startQuiz(){
+    order = shuffle(QUESTIONS);
+    qIndex = 0;
+    records = [];
+    quizStartTime = Date.now();
+
+    screenStart.classList.add('hidden');
+    screenGame.classList.remove('hidden');
+    screenEnd.classList.add('hidden');
+
+    buildTrail();
+    startTimer();
+    loadQuestion();
+  }
+
+  function buildTrail(){
+    trailEl.innerHTML = '';
+    for(let i=0;i<order.length;i++){
+      const span = document.createElement('span');
+      span.className = 'paw';
+      span.textContent = '🐾';
+      span.id = 'paw-'+i;
+      trailEl.appendChild(span);
+    }
+    updateTrail();
+  }
+  function updateTrail(){
+    order.forEach((_, i) => {
+      const el = document.getElementById('paw-'+i);
+      el.classList.remove('done','current');
+      if(i < qIndex) el.classList.add('done');
+      else if(i === qIndex) el.classList.add('current');
+    });
+  }
+
+  function startTimer(){
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      const secs = Math.floor((Date.now() - quizStartTime)/1000);
+      timerEl.textContent = '⏱ ' + formatTime(secs);
+    }, 250);
+  }
+  function stopTimer(){ clearInterval(timerInterval); }
+
+  function formatTime(totalSeconds){
+    const m = Math.floor(totalSeconds/60).toString().padStart(2,'0');
+    const s = (totalSeconds%60).toString().padStart(2,'0');
+    return m+':'+s;
+  }
+
+  function loadQuestion(){
+    const q = order[qIndex];
+    qStartTime = Date.now();
+    attemptsThisQ = 0;
+
+    qcountEl.textContent = `第 ${qIndex+1} / ${order.length} 題`;
+    chineseBox.textContent = '💬 ' + q.chinese;
+    feedbackEl.textContent = '\u00a0';
+    feedbackEl.className = 'feedback';
+    mascotGame.className = 'mascot';
+
+    // Build sentence with input blanks
+    const parts = q.template.split(/\{(\d)\}/);
+    // parts alternates: text, idx, text, idx, text...
+    sentenceBox.innerHTML = '';
+    parts.forEach((part, i) => {
+      if(i % 2 === 0){
+        if(part.length) sentenceBox.appendChild(document.createTextNode(part));
+      } else {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'blank';
+        input.dataset.idx = part;
+        input.autocomplete = 'off';
+        input.spellcheck = false;
+        input.addEventListener('keydown', (e) => {
+          if(e.key === 'Enter') checkAnswer();
+        });
+        sentenceBox.appendChild(input);
+      }
+    });
+    updateTrail();
+    const firstInput = sentenceBox.querySelector('.blank');
+    if(firstInput) firstInput.focus();
+  }
+
+  btnCheck.addEventListener('click', checkAnswer);
+
+  function checkAnswer(){
+    const q = order[qIndex];
+    const inputs = Array.from(sentenceBox.querySelectorAll('.blank'));
+    attemptsThisQ++;
+
+    let allCorrect = true;
+    let capIssue = false;    // sentence-start blank typed without a capital letter
+    let lowerIssue = false;  // mid-sentence blank typed with a capital letter
+    inputs.forEach(inp => {
+      const idx = parseInt(inp.dataset.idx, 10);
+      const val = cleanValue(inp.value);
+      const answer = q.blanks[idx];
+      const correct = val === answer; // case-sensitive exact match
+
+      if(!correct && val.toLowerCase() === answer.toLowerCase()){
+        if(idx === 0) capIssue = true;
+        else lowerIssue = true;
+      }
+
+      inp.classList.remove('correct','wrong');
+      if(correct){
+        inp.classList.add('correct');
+      } else {
+        inp.classList.add('wrong');
+        allCorrect = false;
+      }
+    });
+
+    if(allCorrect){
+      feedbackEl.textContent = 'Good job! 🎉';
+      feedbackEl.className = 'feedback good';
+      mascotGame.className = 'mascot happy';
+      inputs.forEach(inp => inp.disabled = true);
+
+      const timeSpent = Math.round((Date.now() - qStartTime)/1000);
+      records.push({
+        chinese: q.chinese,
+        english: fillTemplate(q),
+        firstTry: attemptsThisQ === 1,
+        attempts: attemptsThisQ,
+        seconds: timeSpent
+      });
+
+      setTimeout(() => {
+        qIndex++;
+        if(qIndex < order.length){
+          loadQuestion();
+        } else {
+          finishQuiz();
+        }
+      }, 900);
+    } else {
+      if(capIssue){
+        feedbackEl.textContent = 'Try again! 句首要大寫喔 ✏️';
+      } else if(lowerIssue){
+        feedbackEl.textContent = 'Try again! 句中要用小寫喔 🔡';
+      } else {
+        feedbackEl.textContent = 'Try again! 💪';
+      }
+      feedbackEl.className = 'feedback bad';
+      mascotGame.className = 'mascot sad';
+    }
+  }
+
+  function fillTemplate(q){
+    return q.template.replace(/\{(\d)\}/g, (m, idx) => q.blanks[parseInt(idx,10)]);
+  }
+
+  // ---------- End screen ----------
+  function finishQuiz(){
+    stopTimer();
+    screenGame.classList.add('hidden');
+    screenEnd.classList.remove('hidden');
+
+    const totalSeconds = Math.round((Date.now() - quizStartTime)/1000);
+    const firstTryCount = records.filter(r => r.firstTry).length;
+    const accuracy = Math.round((firstTryCount / records.length) * 100);
+
+    document.getElementById('end-name').textContent = student.name;
+    document.getElementById('end-who').textContent = `${student.cls} 班 ${student.seat} 號`;
+    document.getElementById('stat-accuracy').textContent = accuracy + '%';
+    document.getElementById('stat-time').textContent = formatTime(totalSeconds);
+
+    const tbody = document.getElementById('result-tbody');
+    tbody.innerHTML = '';
+    records.forEach((r, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${i+1}</td>
+        <td class="eng-cell">${escapeHtml(r.english)}</td>
+        <td>${r.firstTry ? '<span class="badge first">一次答對</span>' : '<span class="badge retry">重試 '+r.attempts+' 次</span>'}</td>
+        <td>${r.attempts}</td>
+        <td>${formatTime(r.seconds)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function escapeHtml(str){
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  btnRestart.addEventListener('click', () => {
+    screenEnd.classList.add('hidden');
+    screenStart.classList.remove('hidden');
+    document.getElementById('in-class').value = '';
+    document.getElementById('in-seat').value = '';
+    document.getElementById('in-name').value = '';
+    const tip = document.getElementById('start-tip');
+    if(tip) tip.remove();
+    mascotStart.className = 'mascot';
+  });
+
+})();
+</script>
+</body>
+</html>
